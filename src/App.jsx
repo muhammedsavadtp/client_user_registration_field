@@ -1,13 +1,12 @@
-
-
-
-
+import { BrowserRouter } from 'react-router-dom'
+import Routes from './routes/Routes'
 function App() {
-
 
   return (
     <>
-    <h1>hi</h1>
+      <BrowserRouter>
+      <Routes/>
+      </BrowserRouter>
     </>
   )
 }
