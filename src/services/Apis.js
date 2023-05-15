@@ -48,7 +48,7 @@ export const getUserData = async (userId, header) => {
   try {
     const response = await commonrequest(
       "GET",
-      `${BASE_URL}/user/${userId}`,
+      `${BASE_URL}/userdetails/${userId}`,
       null,
       header
     );
