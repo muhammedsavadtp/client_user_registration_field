@@ -8,17 +8,11 @@ import { useEffect } from "react";
 import { getUserData } from "../services/Apis";
 
 const RoutesPage = () => {
-  const user = useSelector((state) => state.User.userDetails);
-  console.log(user);
-  const id = localStorage.getItem("token");
+  // const user = useSelector((state) => state.User.userDetails);
+  // console.log(user);
+//   const id = localStorage.getItem("token");
 
-  useEffect(() => {
-    if (id) {
-      getUserData(user.id);
-    } else {
-      console.log("user is not logged in");
-    }
-  }, []);
+// console.log(id);
 
   return (
     <>

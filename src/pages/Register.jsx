@@ -3,16 +3,19 @@ import { Link } from "react-router-dom";
 import { registerUser } from "../services/Apis";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
 
 const RegistrationPage = () => {
+  const navigate = useNavigate();
+  const [image, setImage] = useState(null);
   const [imageName, setImageName] = useState("");
-  const [formData, setFormData] = useState({
+  const [Data, setData] = useState({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
-    image: null,
-    option: "",
+    confirmPassword: "",
+  
   });
 
   const [errors, setErrors] = useState({
@@ -20,47 +23,40 @@ const RegistrationPage = () => {
     lastName: "",
     email: "",
     password: "",
+    confirmPassword: "",
     image: "",
-    option: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevFormData) => ({
-      ...prevFormData,
+    setData((prevData) => ({
+      ...prevData,
       [name]: value,
     }));
   };
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setFormData((prevFormData) => ({
-      ...prevFormData,
-      image: file,
-    }));
+    setImage(file);
+    setImageName(file.name)
 
-    if (file) {
-      setImageName(file.name);
-    } else {
-      setImageName("");
-    }
   };
+  // console.log(Data.image);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     // Clear previous errors
     setErrors({
       firstName: "",
       lastName: "",
       email: "",
       password: "",
-      image: "",
-      option: "",
+      confirmPassword: "",
+     
     });
 
     // Validate first name
-    if (!formData.firstName) {
+    if (!Data.firstName) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         firstName: "First name is required.",
@@ -68,7 +64,7 @@ const RegistrationPage = () => {
     }
 
     // Validate last name
-    if (!formData.lastName) {
+    if (!Data.lastName) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         lastName: "Last name is required.",
@@ -76,14 +72,14 @@ const RegistrationPage = () => {
     }
 
     // Validate email
-    if (!formData.email) {
+    if (!Data.email) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         email: "Email is required.",
       }));
     } else {
       const emailRegex = /^\S+@\S+\.\S+$/;
-      if (!emailRegex.test(formData.email)) {
+      if (!emailRegex.test(Data.email)) {
         setErrors((prevErrors) => ({
           ...prevErrors,
           email: "Invalid email address.",
@@ -92,48 +88,53 @@ const RegistrationPage = () => {
     }
 
     // Validate password
-    if (!formData.password) {
+    if (!Data.password) {
       setErrors((prevErrors) => ({
         ...prevErrors,
         password: "Password is required.",
       }));
-    } else {
-      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,}$/;
-      if (!passwordRegex.test(formData.password)) {
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          password:
-            "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.",
-        }));
-      }
+    }
+
+    // Validate confirm password
+    if (Data.password !== Data.confirmPassword) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        confirmPassword: "Passwords do not match.",
+      }));
     }
 
     // If there are no errors, proceed with form submission
-    if (Object.values(errors).every((error) => error === "")) {
-      try {
-        const { firstName, lastName, email, password, image, option } =
-          formData;
-
-        // Prepare the data to be sent to the server
-        const data = {
-          firstName,
-          lastName,
-          email,
-          password,
-          image,
-          option,
-        };
+ 
+    try {
+      const formData = new FormData();
+      formData.append("image", image);
+      formData.append("firstName", Data.firstName);
+      formData.append("lastName", Data.lastName);
+      formData.append("email", Data.email);
+      formData.append("password", Data.password);
+   
+      const header = {"Content-Type": "multipart/form-data"}
 
         // Make the API call to register the user
-        const response = await registerUser(data, {});
-
+      const response = await registerUser(formData, header);
         // Handle the response accordingly
-        console.log(response);
+        if (response.status === 201) { 
+          // Show success toast message
+          toast.success("User registered successfully", {
+            position: toast.POSITION.TOP_CENTER,
+          });
+          // console.log(response);
+          localStorage.setItem("token",response.data.token)
+        navigate("/");
+        } else {
+          // Show error toast message
+          toast.error(response.response.data.message, {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        }
+       
 
-        // Show success toast message
-        toast.success("User registered successfully", {
-          position: toast.POSITION.TOP_CENTER,
-        });
+        
       } catch (error) {
         console.error(error);
 
@@ -142,18 +143,12 @@ const RegistrationPage = () => {
           position: toast.POSITION.TOP_CENTER,
         });
       }
-    } else {
-      // Show error toast message
-      toast.error("Please fill in all required fields", {
-        position: toast.POSITION.TOP_CENTER,
-      });
-    }
+  
   };
 
   return (
     <div className="flex justify-center items-center h-screen">
-      <ToastContainer position="top-center" />
-
+      <ToastContainer position="top-center" />{" "}
       <div className="flex flex-col md:flex-row bg-gray-100 rounded-lg shadow-lg p-6">
         <div className="md:w-1/2">
           <img
@@ -170,11 +165,11 @@ const RegistrationPage = () => {
               <div className="flex">
                 <div className="w-1/2 mr-2">
                   <input
-                    type="                text"
+                    type="text"
                     id="firstName"
                     name="firstName"
                     placeholder="First Name"
-                    value={formData.firstName}
+                    value={Data.firstName}
                     onChange={handleChange}
                     className={`w-full border ${
                       errors.firstName ? "border-red-500" : "border-gray-300"
@@ -194,7 +189,7 @@ const RegistrationPage = () => {
                     id="lastName"
                     name="lastName"
                     placeholder="Last Name"
-                    value={formData.lastName}
+                    value={Data.lastName}
                     onChange={handleChange}
                     className={`w-full border ${
                       errors.lastName ? "border-red-500" : "border-gray-300"
@@ -216,7 +211,7 @@ const RegistrationPage = () => {
                 id="email"
                 name="email"
                 placeholder="Email"
-                value={formData.email}
+                value={Data.email}
                 onChange={handleChange}
                 className={`w-full border ${
                   errors.email ? "border-red-500" : "border-gray-300"
@@ -234,7 +229,7 @@ const RegistrationPage = () => {
                 id="password"
                 name="password"
                 placeholder="Password"
-                value={formData.password}
+                value={Data.password}
                 onChange={handleChange}
                 className={`w-full border ${
                   errors.password ? "border-red-500" : "border-gray-300"
@@ -246,10 +241,31 @@ const RegistrationPage = () => {
                 <p className="text-red-500 text-xs mt-1">{errors.password}</p>
               )}
             </div>
+            <div className="mb-4">
+              <input
+                type="password"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                value={Data.confirmPassword}
+                onChange={handleChange}
+                className={`w-full border ${
+                  errors.confirmPassword ? "border-red-500" : "border-gray-300"
+                } rounded-md py-2 px-3 ${
+                  errors.confirmPassword ? "text-red-500" : "text-gray-700"
+                }`}
+              />
+              {errors.confirmPassword && (
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.confirmPassword}
+                </p>
+              )}
+            </div>
             <div className="mb-4 flex">
               <input
                 type="file"
                 id="image"
+                accept="image/*"
                 name="image"
                 onChange={handleImageChange}
                 className="hidden"
@@ -275,7 +291,6 @@ const RegistrationPage = () => {
               </button>
 
               <p className="my-5">
-                {" "}
                 already an account{" "}
                 <Link to={"/login"}>
                   <span className="text-blue-800 underline">sign in </span>

@@ -10,7 +10,7 @@ export const registerUser = async (data, header) => {
       data,
       header
     );
-    return response.data;
+    return response;
   } catch (error) {
     throw new Error("Failed to register user");
   }
@@ -24,7 +24,8 @@ export const loginUser = async (data, header) => {
       data,
       header
     );
-    return response.data;
+
+    return response;
   } catch (error) {
     throw new Error("Failed to login user");
   }
@@ -34,11 +35,11 @@ export const updateProfile = async (userId, data, header) => {
   try {
     const response = await commonrequest(
       "PUT",
-      `${BASE_URL}/user/${userId}`,
+      `${BASE_URL}/user/updateuserdata/${userId}`,
       data,
       header
     );
-    return response.data;
+    return response;
   } catch (error) {
     throw new Error("Failed to update user profile");
   }
@@ -48,10 +49,10 @@ export const getUserData = async (userId, header) => {
   try {
     const response = await commonrequest(
       "GET",
-      `${BASE_URL}/userdetails/${userId}`,
+      `${BASE_URL}/user/userdetails/${userId}`,
       null,
       header
-    );
+    ); 
     return response.data;
   } catch (error) {
     throw new Error("Failed to get user data");
