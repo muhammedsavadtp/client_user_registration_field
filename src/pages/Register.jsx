@@ -33,6 +33,7 @@ const RegistrationPage = () => {
       ...prevData,
       [name]: value,
     }));
+    
   };
 
   const handleImageChange = (e) => {
@@ -112,6 +113,7 @@ const RegistrationPage = () => {
       formData.append("lastName", Data.lastName);
       formData.append("email", Data.email);
       formData.append("password", Data.password);
+      formData.append("confirmPassword", Data.confirmPassword);
    
       const header = {"Content-Type": "multipart/form-data"}
 
@@ -120,12 +122,14 @@ const RegistrationPage = () => {
         // Handle the response accordingly
         if (response.status === 201) { 
           // Show success toast message
+          
           toast.success("User registered successfully", {
             position: toast.POSITION.TOP_CENTER,
           });
           // console.log(response);
-          localStorage.setItem("token",response.data.token)
-        navigate("/");
+          localStorage.setItem("token", response.data.token)
+            navigate("/");
+          
         } else {
           // Show error toast message
           toast.error(response.response.data.message, {

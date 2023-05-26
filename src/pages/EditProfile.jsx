@@ -7,6 +7,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const EditProfilePage = () => {
+  const [update, setUpdate] = useState(false);
   const navigate = useNavigate();
   const user = useSelector((state) => state.User.userDetails);
   const [userData, setUserData] = useState({
@@ -39,11 +40,13 @@ const EditProfilePage = () => {
         lastName: user.lastName,
         previewImage: `${BASE_URL}/${user.profileImage}`,
         email: user.email,
-        
+
       }));
+      setUpdate(false)
     }
-    console.log(previewImage);
-  }, [user]);
+
+    
+  }, [ update,user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -67,14 +70,10 @@ const EditProfilePage = () => {
     };
 
     reader.readAsDataURL(file);
-    
   };
-
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Call your change API here
-    // console.log(userData);
     const formData = new FormData();
     formData.append("image", image);
     formData.append("firstName", userData.firstName);
@@ -84,30 +83,30 @@ const EditProfilePage = () => {
     formData.append("newPassword", userData.newPassword);
     formData.append("confirmPassword", userData.confirmPassword);
 
-
     const header = {
-      "Authorization": `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "multipart/form-data"
-    }
-    updateProfile(user._id, formData, header).then((res) => {
-      console.log(res);
-      if (res.status === 200) {
-        toast.success("update user details successfully", {
-          position: toast.POSITION.TOP_CENTER,
-        });
-     
-        window.location.reload();
-      } else {
-        toast.error(res.response.data.message, {
-          position: toast.POSITION.TOP_CENTER,
-        });
-      }
-    }).catch((err) => {
-      console.log(err);
-    })
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "Content-Type": "multipart/form-data",
+    };
+    updateProfile(user._id, formData, header)
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          toast.success("update user details successfully", {
+            position: toast.POSITION.TOP_CENTER,
+          });
+          setUpdate(true);
+          // window.location.reload();
+        } else {
+          toast.error(res.response.data.message, {
+            position: toast.POSITION.TOP_CENTER,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
     console.log("User Data:", userData);
- 
   };
 
   return (
@@ -125,7 +124,7 @@ const EditProfilePage = () => {
               />
             ) : (
               <img
-                  src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?w=740&t=st=1684137431~exp=1684138031~hmac=900df7c3afcd56237fadd53d3c704300f1e0751334caa17a0e5e20ca39690b8b"
+                src="https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436188.jpg?w=740&t=st=1684137431~exp=1684138031~hmac=900df7c3afcd56237fadd53d3c704300f1e0751334caa17a0e5e20ca39690b8b"
                 alt="User"
                 className="h-full w-full object-cover"
               />

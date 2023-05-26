@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import Routes from "./routes/Routes";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { getUserData } from "./services/Apis";
 import { setUser } from "./store/slice/User";
 import { useDispatch } from "react-redux";
@@ -11,13 +11,13 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-   
       navigate("/login");
     } else {
       const header = { Authorization: `Bearer ${token}` };
       getUserData(token, header)
         .then((res) => {
           dispatch(setUser(res));
+          setUser(res)
         })
         .catch((err) => {
           console.log(err);
@@ -25,6 +25,6 @@ function App() {
         });
     }
   }, []);
-  return <Routes />;
+  return <Routes  />;
 }
 export default App;

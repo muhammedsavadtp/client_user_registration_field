@@ -1,7 +1,6 @@
 import { commonrequest } from "./ApiCall";
 import { BASE_URL } from "./helper";
 
-
 export const registerUser = async (data, header) => {
   try {
     const response = await commonrequest(
@@ -52,10 +51,9 @@ export const getUserData = async (userId, header) => {
       `${BASE_URL}/user/userdetails/${userId}`,
       null,
       header
-    ); 
+    );
     return response.data;
   } catch (error) {
     throw new Error("Failed to get user data");
   }
 };
-
