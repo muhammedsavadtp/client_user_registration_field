@@ -1,11 +1,35 @@
-import {  useState } from "react";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+import {  useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { BASE_URL } from "../services/helper";
+import { getUserData } from "../services/Apis";
+import { setUser } from "../store/slice/User";
+
 const HomePage = () => {
   const[out,setOut]= useState(false)
+  const navigate = useNavigate()
+  const dispatch = useDispatch();
 
   const user = useSelector((state) => state.User.userDetails);
+  useEffect(() => {
+  
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+      } else {
+        const header = { Authorization: `Bearer ${token}` };
+        getUserData(token, header)
+          .then((res) => {
+            dispatch(setUser(res));
+            setUser(res)
+          })
+          .catch((err) => {
+            console.log(err);
+            localStorage.removeItem("token");
+          });
+      }
+  
+  }, [user]);
 
   const logout = () => {
     const proceed = window.confirm("Are you sure you want to logout?");
@@ -18,6 +42,7 @@ const HomePage = () => {
       // No action required
     }
   };
+
 
   return (
     <div className="flex items-center justify-center h-screen">
